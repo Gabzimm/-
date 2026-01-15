@@ -107,7 +107,23 @@ async def reload(ctx):
     
     await load_cogs()
     await ctx.send("✅ Módulos recarregados!")
-
+# ==================== COMANDO TESTE ====================
+@bot.command()
+async def test_ticket(ctx):
+    """Testa se o módulo tickets está funcionando"""
+    try:
+        # Tentar importar diretamente
+        import modules.tickets
+        await ctx.send("✅ Módulo tickets IMPORTADO com sucesso!")
+        
+        # Verificar se tem a classe
+        if hasattr(modules.tickets, 'TicketOpenView'):
+            await ctx.send("✅ Classe TicketOpenView ENCONTRADA!")
+        else:
+            await ctx.send("❌ Classe TicketOpenView NÃO encontrada")
+            
+    except Exception as e:
+        await ctx.send(f"❌ Erro ao importar: {type(e).__name__}: {e}")
 # ==================== INICIALIZAÇÃO ====================
 if __name__ == '__main__':
     print("🚀 Iniciando bot Discord...")
