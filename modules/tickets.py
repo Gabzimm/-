@@ -323,18 +323,19 @@ class TicketOpenView(ui.View):
 
 # ========== COMANDOS ==========
 
-def setup(bot):
-    """Configura o sistema de tickets"""
+class TicketsCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
     
-    @bot.command()
+    @commands.command()
     @commands.has_permissions(administrator=True)
-    async def setup_tickets(ctx):
+    async def setup_tickets(self, ctx):
         """Configura o painel de tickets"""
         
         embed = discord.Embed(
             title="🎫 **SISTEMA DE TICKETS**",
             description=(
-                 "Escolha uma opção com base no assunto que você\n"
+                "Escolha uma opção com base no assunto que você\n"
                 "deseja discutir com um membro da equipe através\n"
                 "de um ticket:\n\n"
                 "**📌 Observações:**\n"
@@ -354,9 +355,9 @@ def setup(bot):
         await ctx.send(embed=embed, view=view)
         await ctx.message.delete()
     
-    @bot.command()
+    @commands.command()
     @commands.has_permissions(administrator=True)
-    async def ticket_info(ctx, channel: discord.TextChannel = None):
+    async def ticket_info(self, ctx, channel: discord.TextChannel = None):
         """Mostra informações de um ticket"""
         if channel is None:
             channel = ctx.channel
@@ -398,5 +399,8 @@ def setup(bot):
             embed.add_field(name="👑 Staff Responsável", value=staff_name, inline=True)
         
         await ctx.send(embed=embed)
-    
+
+async def setup(bot):
+    """Configura o sistema de tickets"""
+    await bot.add_cog(TicketsCog(bot))
     print("✅ Módulo de tickets (versão final) carregado!")
