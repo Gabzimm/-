@@ -34,7 +34,7 @@ intents.members = True  # IMPORTANTE para tickets/sets
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # ==================== CARREGAR SEUS MÓDULOS ====================
-    async def load_cogs():
+async def load_cogs():
     """Carrega seus módulos (tickets, sets, etc.)"""
     print("=" * 50)
     print("🔄 INICIANDO CARREGAMENTO DE MÓDULOS...")
@@ -55,7 +55,6 @@ bot = commands.Bot(command_prefix='!', intents=intents)
     # Lista dos SEUS módulos
     cogs = [
         'modules.tickets',
-        'modules.sets',
     ]
     
     for cog in cogs:
