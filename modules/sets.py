@@ -88,14 +88,6 @@ class SetStaffView(ui.View):
                 membro_role = discord.utils.get(interaction.guild.roles, name="𝐌𝐞𝐦𝐛𝐫𝐨")
                 if membro_role:
                     await member.add_roles(membro_role)
-
-                # CONFIGURAÇÕES 
-                TOKEN = "SEU_TOKEN_AQUI"
-                CARGO_ID = 123456789012345678  # ID DO CARGO AUTOMÁTICO 
-          else:
-                print(" Cargo não encontrado")
-          except Exception as e:
-               print(f"Erro ao dar cargo: {e}")
                 
                 # Embed de aprovação
                 embed_aprovado = discord.Embed(
