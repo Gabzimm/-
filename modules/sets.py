@@ -90,9 +90,9 @@ class SetStaffView(ui.View):
             
             if member:
                 # Criar nickname (máximo 32 caracteres)
-                novo_nick = f"MEM | {self.game_nick} - {self.fivem_id}"
+                novo_nick = f"AVZ | {self.game_nick} - {self.fivem_id}"
                 if len(novo_nick) > 32:
-                    novo_nick = f"MEM | {self.game_nick[:15]} - {self.fivem_id[:10]}"
+                    novo_nick = f"AVZ | {self.game_nick[:15]} - {self.fivem_id[:10]}"
                 
                 # Mudar nickname
                 await member.edit(nick=novo_nick)
