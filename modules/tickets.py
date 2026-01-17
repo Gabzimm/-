@@ -17,7 +17,7 @@ class TicketFinalizadoView(ui.View):
     @ui.button(label="✅ Finalizar Ticket", style=ButtonStyle.green, custom_id="finalizar_ticket")
     async def finalizar_ticket(self, interaction: discord.Interaction, button: ui.Button):
         # APENAS STAFF pode finalizar
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", "𝐌𝐨𝐝𝐞𝐫"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.response.send_message("❌ Apenas staff pode finalizar!", ephemeral=True)
             return
@@ -42,7 +42,7 @@ class TicketFinalizadoView(ui.View):
     @ui.button(label="🔄 Reabrir Ticket", style=ButtonStyle.blurple, custom_id="reabrir_ticket")
     async def reabrir_ticket(self, interaction: discord.Interaction, button: ui.Button):
         # APENAS STAFF pode reabrir
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", "𝐌𝐨𝐝𝐞𝐫"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.response.send_message("❌ Apenas staff pode reabrir!", ephemeral=True)
             return
@@ -135,7 +135,7 @@ class TicketReabertoView(ui.View):
     @ui.button(label="🗑️ Deletar Ticket", style=ButtonStyle.red, emoji="🗑️", custom_id="delete_ticket_reaberto", row=0)
     async def delete_ticket_reaberto(self, interaction: discord.Interaction, button: ui.Button):
         # APENAS STAFF pode deletar
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", "𝐌𝐨𝐝𝐞𝐫"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.response.send_message("❌ Apenas staff pode deletar tickets!", ephemeral=True)
             return
@@ -218,7 +218,7 @@ class TicketStaffView(ui.View):
     @ui.button(label="🗑️ Deletar Ticket", style=ButtonStyle.red, emoji="🗑️", custom_id="delete_ticket_staff", row=0)
     async def delete_ticket_staff(self, interaction: discord.Interaction, button: ui.Button):
         # APENAS STAFF pode deletar
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", "𝐌𝐨𝐝𝐞𝐫"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.response.send_message("❌ Apenas staff pode deletar tickets!", ephemeral=True)
             return
@@ -300,7 +300,7 @@ class TicketOpenView(ui.View):
             }
             
             # Adicionar staff roles para ver botões
-            staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+            staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", "𝐌𝐨𝐝𝐞𝐫"]
             for role_name in staff_roles:
                 role = discord.utils.get(interaction.guild.roles, name=role_name)
                 if role:
@@ -384,7 +384,7 @@ class TicketsCog(commands.Cog):
             color=discord.Color.purple()
         )
         
-        embed.set_image(url="https://cdn.discordapp.com/attachments/1460761801515073650/1461317989226905757/ChatGPT_Image_13_de_jan._de_2026_20_15_27.png")
+        embed.set_image(url="https://cdn.discordapp.com/attachments/1462150327070359707/1462151759337361654/ChatGPT_Image_17_de_jan._de_2026_18_28_54.png?ex=696d2670&is=696bd4f0&hm=10fbb4366a6ba683e0b93a90e2cc7e2b67748dcbdacee8fde06a768050748bd5")
         embed.set_footer(text="Atenção: Não abuse do sistema")
         
         view = TicketOpenView()
