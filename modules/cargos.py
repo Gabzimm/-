@@ -304,8 +304,15 @@ class CargosCog(commands.Cog):
                 "3. Selecione o cargo desejado\n"
                 "✅ Pronto! O cargo será atribuído automaticamente"
             ),
-            color=discord.Color.purple()
-            
+            color=discord.Color.blue()
+        )
+        
+        embed.add_field(
+            name="⚠️ Apenas Staff",
+            value="Este painel é restrito para:\n• 00 🐐\n• 𝐆𝐞𝐫𝐞𝐧𝐭𝐞\n• 𝐀𝐃𝐌\n• 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫\n• Dono\n• Owner",
+            inline=False
+        )
+        
         embed.set_footer(text="Sistema automático de cargos • Clique nos botões acima")
         
         view = CargoPanelView()
