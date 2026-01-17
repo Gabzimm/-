@@ -21,12 +21,18 @@ class CargoSelectDropdown(ui.Select):
         
         # Definir cargos disponíveis
         options = [
-            discord.SelectOption(label="𝐀𝐯𝐢𝐚̃𝐨𝐳𝐢𝐧𝐡𝐨", description="Cargo inicial", emoji="🛬"),
-            discord.SelectOption(label="𝐌𝐞𝐦𝐛𝐫𝐨", description="Membro do servidor", emoji="👤"),
-            discord.SelectOption(label="𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", description="Recrutador", emoji="📢"),
-            discord.SelectOption(label="𝐀𝐃𝐌", description="Administrador", emoji="👑"),
-            discord.SelectOption(label="𝐆𝐞𝐫𝐞𝐧𝐭𝐞", description="Gerente", emoji="💼"),
-            discord.SelectOption(label="00 🐐", description="Dono", emoji="🐐"),
+            discord.SelectOption(label="𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", description="𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫"),
+            discord.SelectOption(label="𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", description="𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫"),
+            discord.SelectOption(label="𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐚 𝐄𝐥𝐢𝐭𝐞", description="𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐚 𝐄𝐥𝐢𝐭𝐞"),
+            discord.SelectOption(label="𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", description="𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨"),
+            discord.SelectOption(label="𝐌𝐨𝐝𝐞𝐫", description="𝐌𝐨𝐝𝐞𝐫"),
+            discord.SelectOption(label="𝐀𝐯𝐢𝐚̃𝐨𝐳𝐢𝐧𝐡𝐨", description="Cargo inicial"),
+            discord.SelectOption(label="𝐌𝐞𝐦𝐛𝐫𝐨", description="Membro do servidor"),
+            discord.SelectOption(label="𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", description="Recrutador",),
+            discord.SelectOption(label="𝐀𝐃𝐌", description="Administrador"),
+            discord.SelectOption(label="𝐆𝐞𝐫𝐞𝐧𝐭𝐞", description="Gerente"),
+            discord.SelectOption(label="00", description="Dono"),
+
         ]
         
         super().__init__(
@@ -40,7 +46,7 @@ class CargoSelectDropdown(ui.Select):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.followup.send("❌ Apenas staff pode gerenciar cargos!", ephemeral=True)
             return
@@ -93,7 +99,7 @@ class CargoPanelView(ui.View):
     
     @ui.button(label="➕ Adicionar Cargo", style=ButtonStyle.green, emoji="➕", custom_id="add_cargo")
     async def add_cargo(self, interaction: discord.Interaction, button: ui.Button):
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.response.send_message("❌ Apenas staff pode adicionar cargos!", ephemeral=True)
             return
@@ -104,7 +110,7 @@ class CargoPanelView(ui.View):
     
     @ui.button(label="➖ Remover Cargo", style=ButtonStyle.red, emoji="➖", custom_id="remove_cargo")
     async def remove_cargo(self, interaction: discord.Interaction, button: ui.Button):
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.response.send_message("❌ Apenas staff pode remover cargos!", ephemeral=True)
             return
@@ -114,7 +120,7 @@ class CargoPanelView(ui.View):
     
     @ui.button(label="📋 Ver Cargos", style=ButtonStyle.blurple, emoji="📋", custom_id="view_cargos")
     async def view_cargos(self, interaction: discord.Interaction, button: ui.Button):
-        staff_roles = ["00 🐐", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐀𝐃𝐌", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "Dono", "Owner"]
+        staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨"]
         if not any(role.name in staff_roles for role in interaction.user.roles):
             await interaction.response.send_message("❌ Apenas staff pode ver cargos!", ephemeral=True)
             return
@@ -309,7 +315,7 @@ class CargosCog(commands.Cog):
         
         embed.add_field(
             name="⚠️ Apenas Staff",
-            value="Este painel é restrito para:\n• 00 🐐\n• 𝐆𝐞𝐫𝐞𝐧𝐭𝐞\n• 𝐀𝐃𝐌\n• 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫\n• Dono\n• Owner",
+            value="Este painel é restrito para:\n• 00\n• 𝐆𝐞𝐫𝐞𝐧𝐭𝐞\n• 𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨\n• 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫\n• 𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫\n• 𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐚 𝐄𝐥𝐢𝐭𝐞\n• 𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫",
             inline=False
         )
         
