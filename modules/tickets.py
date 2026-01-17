@@ -454,6 +454,7 @@ class TicketOpenView(ui.View):
                 f"❌ **Erro:** `{type(e).__name__}`",
                 ephemeral=True
             )
+            
 # ========== COMANDOS ==========
 
 class TicketsCog(commands.Cog):
