@@ -250,83 +250,64 @@ class TicketOpenView(ui.View):
     def __init__(self):
         super().__init__(timeout=None)
     
-        @ui.button(label="Abrir Ticket", style=ButtonStyle.primary, emoji="🎫", custom_id="open_ticket")
+    @ui.button(label="Abrir Ticket", style=ButtonStyle.primary, emoji="🎫", custom_id="open_ticket")
     async def open_ticket(self, interaction: discord.Interaction, button: ui.Button):
-        # Responder IMEDIATAMENTE com logs
-        print(f"\n" + "="*60)
-        print(f"🎯 [TICKET] Iniciando criação de ticket")
-        print(f"🎯 [TICKET] Usuário: {interaction.user.name} ({interaction.user.id})")
-        print(f"🎯 [TICKET] Servidor: {interaction.guild.name}")
-        print(f"🎯 [TICKET] Canal de comando: {interaction.channel.name}")
+        print(f"[TICKET] Iniciando criação de ticket para {interaction.user.name}")
         
         await interaction.response.defer(ephemeral=True)
         
         try:
             # 1. VERIFICAÇÃO DO CANAL BASE
-            print("🔍 [DEBUG] Procurando canal base 'ticket'...")
             canal_ticket_base = None
             
             for channel in interaction.guild.text_channels:
                 channel_lower = channel.name.lower()
-                # Procura de forma flexível
-                if ("ticket" in channel_lower or "tícket" in channel_lower or "𝐓𝐢𝐜𝐤𝐞𝐭" in channel.name):
+                if "ticket" in channel_lower or "𝐓𝐢𝐜𝐤𝐞𝐭" in channel.name:
                     canal_ticket_base = channel
-                    print(f"✅ [DEBUG] Canal base encontrado: '{channel.name}'")
+                    print(f"[TICKET] Canal base encontrado: {channel.name}")
                     break
             
             if not canal_ticket_base:
-                print("❌ [DEBUG] Nenhum canal com 'ticket' no nome encontrado!")
+                print("[TICKET] Nenhum canal com 'ticket' encontrado")
                 await interaction.followup.send(
-                    "❌ **Erro:** Nenhum canal com 'ticket' no nome foi encontrado!",
+                    "❌ Nenhum canal com 'ticket' no nome foi encontrado!",
                     ephemeral=True
                 )
                 return
             
             # 2. VERIFICAR CATEGORIA
-            print("🔍 [DEBUG] Verificando categoria...")
             categoria = canal_ticket_base.category
             
             if not categoria:
-                print("⚠️ [DEBUG] Canal base não está em categoria, usando categoria atual...")
                 categoria = interaction.channel.category
             
             if not categoria:
-                print("❌ [DEBUG] Nenhuma categoria disponível!")
+                print("[TICKET] Nenhuma categoria disponível")
                 await interaction.followup.send(
                     "❌ Não foi possível determinar a categoria para o ticket!",
                     ephemeral=True
                 )
                 return
             
-            print(f"📌 [DEBUG] Categoria definida: '{categoria.name}'")
+            print(f"[TICKET] Categoria: {categoria.name}")
             
-            # 3. VERIFICAR TICKETS EXISTENTES (CORRIGIDO!)
-            print(f"🔍 [DEBUG] Verificando tickets existentes na categoria '{categoria.name}'...")
-            
+            # 3. VERIFICAR TICKETS EXISTENTES (CORRIGIDO - SEM ERRO DE VOICECHANNEL)
             tickets_abertos = []
             for channel in categoria.channels:
-                # FILTRAR APENAS CANAIS DE TEXTO (correção do erro)
-                if isinstance(channel, discord.VoiceChannel):
-                    continue  # Ignora canais de voz
-                
-                if isinstance(channel, discord.TextChannel) and channel.topic:
-                    if str(interaction.user.id) in channel.topic:
+                # Verifica se é canal de texto ANTES de acessar .topic
+                if isinstance(channel, discord.TextChannel):
+                    if channel.topic and str(interaction.user.id) in channel.topic:
                         tickets_abertos.append(channel)
-                        print(f"⚠️ [DEBUG] Ticket já aberto encontrado: #{channel.name}")
+                        print(f"[TICKET] Ticket já aberto: {channel.name}")
             
             if tickets_abertos:
-                print(f"❌ [DEBUG] Usuário já tem {len(tickets_abertos)} ticket(s) aberto(s)")
                 await interaction.followup.send(
                     f"❌ Você já tem um ticket aberto: {tickets_abertos[0].mention}",
                     ephemeral=True
                 )
                 return
             
-            print("✅ [DEBUG] Nenhum ticket aberto encontrado para este usuário")
-            
             # 4. CONFIGURAR PERMISSÕES
-            print("🔧 [DEBUG] Configurando permissões...")
-            
             overwrites = {
                 interaction.guild.default_role: discord.PermissionOverwrite(
                     read_messages=False,
@@ -347,27 +328,19 @@ class TicketOpenView(ui.View):
             }
             
             # 5. ADICIONAR STAFF ROLES
-            print("👑 [DEBUG] Buscando roles de staff...")
             staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", 
                           "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", "𝐌𝐨𝐝𝐞𝐫"]
             
             for role_name in staff_roles:
-                try:
-                    role = discord.utils.get(interaction.guild.roles, name=role_name)
-                    if role:
-                        print(f"✅ [DEBUG] Role '{role_name}' encontrada!")
-                        overwrites[role] = discord.PermissionOverwrite(
-                            read_messages=True,
-                            send_messages=True,
-                            read_message_history=True
-                        )
-                except:
-                    continue
+                role = discord.utils.get(interaction.guild.roles, name=role_name)
+                if role:
+                    overwrites[role] = discord.PermissionOverwrite(
+                        read_messages=True,
+                        send_messages=True,
+                        read_message_history=True
+                    )
             
             # 6. CRIAR CANAL
-            print("🛠️ [DEBUG] Criando canal de ticket...")
-            
-            # Preparar nome seguro
             nome_usuario = interaction.user.display_name
             nome_limpo = ''.join(c for c in nome_usuario if c.isalnum() or c in [' ', '-', '_'])
             nome_limpo = nome_limpo.strip()
@@ -376,25 +349,19 @@ class TicketOpenView(ui.View):
                 nome_limpo = f"user{interaction.user.id}"
             
             nome_canal = f"🎫-{nome_limpo[:20]}"
-            print(f"📝 [DEBUG] Nome do canal: {nome_canal}")
+            print(f"[TICKET] Criando canal: {nome_canal}")
             
-            try:
-                ticket_channel = await interaction.guild.create_text_channel(
-                    name=nome_canal,
-                    category=categoria,
-                    overwrites=overwrites,
-                    topic=f"Ticket de {interaction.user.name} | ID: {interaction.user.id}",
-                    reason=f"Ticket criado por {interaction.user.name}"
-                )
-                print(f"✅ [DEBUG] Canal criado com sucesso! #{ticket_channel.name}")
-                
-            except Exception as e:
-                print(f"❌ [DEBUG] ERRO ao criar canal: {e}")
-                raise
+            ticket_channel = await interaction.guild.create_text_channel(
+                name=nome_canal,
+                category=categoria,
+                overwrites=overwrites,
+                topic=f"Ticket de {interaction.user.name} | ID: {interaction.user.id}",
+                reason=f"Ticket criado por {interaction.user.name}"
+            )
+            
+            print(f"[TICKET] Canal criado: {ticket_channel.name}")
             
             # 7. ENVIAR MENSAGENS NO TICKET
-            print("💬 [DEBUG] Enviando mensagens no ticket...")
-            
             embed = discord.Embed(
                 title=f"🎫 Ticket de {interaction.user.display_name}",
                 description=(
@@ -408,53 +375,42 @@ class TicketOpenView(ui.View):
             
             staff_view = TicketStaffView(interaction.user.id, ticket_channel)
             
-            try:
-                # Embed principal
-                await ticket_channel.send(
-                    content=f"## 👋 Olá {interaction.user.mention}!\nSeu ticket foi criado com sucesso.",
-                    embed=embed
-                )
-                
-                # Botões
-                await ticket_channel.send("**🔧 Painel de Controle:**", view=staff_view)
-                print("✅ [DEBUG] Mensagens enviadas no ticket")
-                
-            except Exception as e:
-                print(f"⚠️ [DEBUG] Erro ao enviar mensagens: {e}")
+            await ticket_channel.send(
+                content=f"## 👋 Olá {interaction.user.mention}!\nSeu ticket foi criado com sucesso.",
+                embed=embed
+            )
+            
+            await ticket_channel.send("**🔧 Painel de Controle:**", view=staff_view)
             
             # 8. CONFIRMAR PARA O USUÁRIO
-            print("📨 [DEBUG] Enviando confirmação para o usuário...")
             await interaction.followup.send(
-                f"✅ **Ticket criado com sucesso!**\n"
-                f"Acesse: {ticket_channel.mention}",
+                f"✅ **Ticket criado com sucesso!**\nAcesse: {ticket_channel.mention}",
                 ephemeral=True
             )
             
-            print(f"🎉 [TICKET] Ticket criado com SUCESSO para {interaction.user.name}")
-            print("="*60 + "\n")
+            print(f"[TICKET] Ticket criado com SUCESSO para {interaction.user.name}")
             
         except discord.Forbidden:
-            print(f"❌ [ERRO] PERMISSÃO NEGADA")
+            print("[ERRO] Permissão negada")
             await interaction.followup.send(
                 "❌ **Erro de permissão!**",
                 ephemeral=True
             )
             
         except discord.HTTPException as e:
-            print(f"❌ [ERRO] HTTP {e.status}")
+            print(f"[ERRO] HTTP {e.status}")
             await interaction.followup.send(
                 f"❌ **Erro do Discord:** Tente novamente.",
                 ephemeral=True
             )
             
         except Exception as e:
-            print(f"❌ [ERRO] INESPERADO: {type(e).__name__}: {e}")
-            
+            print(f"[ERRO] {type(e).__name__}: {e}")
             await interaction.followup.send(
                 f"❌ **Erro:** `{type(e).__name__}`",
                 ephemeral=True
             )
-            
+
 # ========== COMANDOS ==========
 
 class TicketsCog(commands.Cog):
@@ -465,7 +421,7 @@ class TicketsCog(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def setup_tickets(self, ctx):
         """Configura o painel de tickets"""
-        print(f"⚙️ [SETUP] Configurando painel de tickets por {ctx.author.name}")
+        print(f"[SETUP] Configurando painel por {ctx.author.name}")
         
         embed = discord.Embed(
             title="🎫 **SISTEMA DE TICKETS**",
@@ -493,7 +449,7 @@ class TicketsCog(commands.Cog):
         await ctx.send(embed=embed, view=view)
         await ctx.message.delete()
         
-        print(f"✅ [SETUP] Painel de tickets configurado em #{ctx.channel.name}")
+        print(f"[SETUP] Painel configurado em #{ctx.channel.name}")
     
     @commands.command(name="ticket_info")
     @commands.has_permissions(administrator=True)
@@ -541,15 +497,11 @@ class TicketsCog(commands.Cog):
         if not ctx.author.guild_permissions.administrator:
             return
         
-        print(f"🧪 [TESTE] Teste iniciado por {ctx.author.name}")
+        print(f"[TESTE] Teste iniciado por {ctx.author.name}")
         
-        # Teste simples
         try:
             # Verificar permissões
             perms = ctx.guild.me.guild_permissions
-            print(f"🧪 [TESTE] Permissões do bot:")
-            print(f"  • Gerenciar Canais: {perms.manage_channels}")
-            print(f"  • Gerenciar Permissões: {perms.manage_roles}")
             
             # Verificar se há canal ticket
             canal_ticket = None
@@ -558,19 +510,13 @@ class TicketsCog(commands.Cog):
                     canal_ticket = channel
                     break
             
-            if canal_ticket:
-                print(f"🧪 [TESTE] Canal ticket encontrado: #{canal_ticket.name}")
-            else:
-                print("🧪 [TESTE] Nenhum canal ticket encontrado")
-            
-            await ctx.send(f"✅ Teste concluído! Verifique os logs do terminal.")
+            await ctx.send(f"✅ Teste concluído! Permissões OK.")
             
         except Exception as e:
-            print(f"❌ [TESTE] Erro: {e}")
+            print(f"[TESTE] Erro: {e}")
             await ctx.send(f"❌ Erro no teste: {e}")
 
 async def setup(bot):
     """Configura o sistema de tickets"""
     await bot.add_cog(TicketsCog(bot))
-    print("✅ Módulo de tickets carregado com DEBUG ATIVADO!")
-    print("📋 Comandos disponíveis: !setup_tickets, !ticket_info, !teste_ticket")
+    print("✅ Módulo de tickets carregado!")
