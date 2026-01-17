@@ -97,10 +97,17 @@ class SetStaffView(ui.View):
                 # Mudar nickname
                 await member.edit(nick=novo_nick)
                 
+                # Remover cargo de visitante se existir
+                visitante_role = discord.utils.get(interaction.guild.roles, name="𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞")
+                if visitante_role and visitante_role in member.roles:
+                    await member.remove_roles(visitante_role)
+                    print(f"✅ Cargo '𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞' removido de {member.name}")
+                
                 # Dar cargo de membro
                 membro_role = discord.utils.get(interaction.guild.roles, name="𝐀𝐯𝐢𝐚̃𝐨𝐳𝐢𝐧𝐡𝐨")
                 if membro_role:
                     await member.add_roles(membro_role)
+                    print(f"✅ Cargo '𝐀𝐯𝐢𝐚̃𝐨𝐳𝐢𝐧𝐡𝐨' adicionado a {member.name}")
                 
                 # Embed de aprovação
                 embed_aprovado = discord.Embed(
@@ -111,7 +118,9 @@ class SetStaffView(ui.View):
                         f"**👤 Nick do Jogo:** `{self.game_nick}`\n"
                         f"**👑 Aprovado por:** {interaction.user.mention}\n"
                         f"**📅 Data:** {datetime.now().strftime('%d/%m/%Y %H:%M')}\n\n"
-                        f"✅ **Nickname alterado para:** `{novo_nick}`"
+                        f"✅ **Nickname alterado para:** `{novo_nick}`\n"
+                        f"✅ **Cargo atualizado:** 𝐀𝐯𝐢𝐚̃𝐨𝐳𝐢𝐧𝐡𝐨\n"
+                        f"✅ **Cargo removido:** 𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞"
                     ),
                     color=discord.Color.green()
                 )
@@ -126,7 +135,10 @@ class SetStaffView(ui.View):
                 
                 # Confirmação
                 await interaction.followup.send(
-                    f"✅ Set de {member.mention} aprovado!\nNickname: `{novo_nick}`",
+                    f"✅ Set de {member.mention} aprovado!\n"
+                    f"• Nickname: `{novo_nick}`\n"
+                    f"• Cargo: 𝐀𝐯𝐢𝐚̃𝐨𝐳𝐢𝐧𝐡𝐨\n"
+                    f"• Visitante: Removido",
                     ephemeral=True
                 )
                 
@@ -139,7 +151,7 @@ class SetStaffView(ui.View):
                             f"**📋 Detalhes:**\n"
                             f"• **Nickname:** `{novo_nick}`\n"
                             f"• **ID Fivem:** `{self.fivem_id}`\n"
-                            f"• **Cargo:** 𝐌𝐞𝐦𝐛𝐫𝐨\n\n"
+                            f"• **Cargo:** 𝐀𝐯𝐢𝐚̃𝐨𝐳𝐢𝐧𝐡𝐨\n\n"
                             f"🎮 Bem-vindo ao servidor!"
                         ),
                         color=discord.Color.green()
@@ -155,9 +167,10 @@ class SetStaffView(ui.View):
                 )
                 
         except discord.Forbidden:
-            await interaction.followup.send("❌ Sem permissão para alterar nickname!", ephemeral=True)
+            await interaction.followup.send("❌ Sem permissão para alterar nickname ou cargos!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Erro: {e}", ephemeral=True)
+            print(f"❌ Erro ao aprovar set: {e}")
     
     @ui.button(label="❌ Recusar Set", style=ButtonStyle.red, custom_id="recusar_set", row=0)
     async def recusar_set(self, interaction: discord.Interaction, button: ui.Button):
@@ -315,12 +328,17 @@ class SetsCog(commands.Cog):
                 "1. Clique em **'Peça seu Set!'**\n"
                 "2. Digite seu **ID do Fivem**\n"
                 "3. Digite seu **Nick do Jogo**\n"
+                "4. Aguarde aprovação da equipe\n\n"
+                "**📝 Observação:**\n"
+                "• IDs únicos obrigatórios\n"
+                "• Aprovação em até 1h\n"
+                "• Cargo de visitante será removido"
             ),
             color=discord.Color.purple()
         )
         
         embed.set_image(url="https://cdn.discordapp.com/attachments/1462150327070359707/1462150528749408366/ChatGPT_Image_17_de_jan._de_2026_18_23_44.png?ex=696d254b&is=696bd3cb&hm=9f8be55310c13df050985fc83a911fa315cf7f0cb6b8125258ce4b0e84edddc4")
-        embed.set_footer(text="IDs únicos obrigatórios • Aprovação em até 1h")
+        embed.set_footer(text="Sistema automático • Remoção de cargo visitante")
         
         view = SetOpenView()
         await ctx.send(embed=embed, view=view)
@@ -385,6 +403,27 @@ class SetsCog(commands.Cog):
             )
         
         await ctx.send(embed=embed)
+    
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def remover_visitante(self, ctx, member: discord.Member):
+        """Remove manualmente o cargo de visitante"""
+        try:
+            visitante_role = discord.utils.get(ctx.guild.roles, name="𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞")
+            if not visitante_role:
+                await ctx.send("❌ Cargo '𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞' não encontrado!")
+                return
+            
+            if visitante_role in member.roles:
+                await member.remove_roles(visitante_role)
+                await ctx.send(f"✅ Cargo '𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞' removido de {member.mention}")
+            else:
+                await ctx.send(f"❌ {member.mention} não possui o cargo '𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞'")
+                
+        except discord.Forbidden:
+            await ctx.send("❌ Não tenho permissão para modificar cargos!")
+        except Exception as e:
+            await ctx.send(f"❌ Erro: {e}")
 
 async def setup(bot):
     await bot.add_cog(SetsCog(bot))
