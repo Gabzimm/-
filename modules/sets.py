@@ -43,15 +43,28 @@ class SetFinalizadoView(ui.View):
         
         await interaction.response.defer()
         
-        embed = discord.Embed(
-            title="🗑️ Pedido Excluído",
-            description=f"Pedido excluído por {interaction.user.mention}",
-            color=discord.Color.red()
-        )
-        
-        await interaction.channel.send(embed=embed)
-        await asyncio.sleep(3)
-        await interaction.channel.delete()
+        try:
+            # 🔥 AGORA EXCLUI APENAS A MENSAGEM, NÃO O CANAL!
+            mensagem_pedido = interaction.message
+            
+            embed = discord.Embed(
+                title="🗑️ Pedido Excluído",
+                description=f"Pedido excluído por {interaction.user.mention}",
+                color=discord.Color.red()
+            )
+            
+            # Envia aviso antes de excluir
+            await interaction.channel.send(embed=embed)
+            
+            # Exclui a mensagem do pedido
+            await mensagem_pedido.delete()
+            
+            print(f"✅ Pedido excluído (mensagem) - ID Fivem: {self.fivem_id}")
+            
+        except discord.Forbidden:
+            await interaction.followup.send("❌ Não tenho permissão para excluir mensagens!", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Erro ao excluir: {e}", ephemeral=True)
 
 class SetStaffView(ui.View):
     """View com botões para staff aprovar/recusar set"""
@@ -116,6 +129,25 @@ class SetStaffView(ui.View):
                     f"✅ Set de {member.mention} aprovado!\nNickname: `{novo_nick}`",
                     ephemeral=True
                 )
+                
+                # DM para o usuário
+                try:
+                    embed_dm = discord.Embed(
+                        title="✅ SEU SET FOI APROVADO!",
+                        description=(
+                            f"Parabéns! Seu pedido de set foi aprovado por {interaction.user.mention}\n\n"
+                            f"**📋 Detalhes:**\n"
+                            f"• **Nickname:** `{novo_nick}`\n"
+                            f"• **ID Fivem:** `{self.fivem_id}`\n"
+                            f"• **Cargo:** 𝐌𝐞𝐦𝐛𝐫𝐨\n\n"
+                            f"🎮 Bem-vindo ao servidor!"
+                        ),
+                        color=discord.Color.green()
+                    )
+                    await member.send(embed=embed_dm)
+                except:
+                    pass  # Se não conseguir DM
+                    
             else:
                 await interaction.followup.send(
                     f"❌ Usuário não encontrado! ID: `{self.user_id}`",
@@ -136,24 +168,36 @@ class SetStaffView(ui.View):
         
         await interaction.response.defer()
         
-        embed_recusado = discord.Embed(
-            title="❌ SET RECUSADO",
-            description=(
-                f"**🎮 ID Fivem:** `{self.fivem_id}`\n"
-                f"**👤 Nick do Jogo:** `{self.game_nick}`\n"
-                f"**👑 Recusado por:** {interaction.user.mention}\n"
-                f"**📅 Data:** {datetime.now().strftime('%d/%m/%Y %H:%M')}"
-            ),
-            color=discord.Color.red()
-        )
-        
-        self.clear_items()
-        await interaction.message.edit(embed=embed_recusado, view=self)
-        
-        finalizado_view = SetFinalizadoView(self.fivem_id, self.game_nick, self.user_id)
-        await interaction.channel.send("**Controles Finais:**", view=finalizado_view)
-        
-        await interaction.followup.send("✅ Set recusado!", ephemeral=True)
+        # 🔥 AGORA APENAS EXCLUI A MENSAGEM DO PEDIDO
+        try:
+            mensagem_pedido = interaction.message
+            
+            # Embed de recusa
+            embed_recusado = discord.Embed(
+                title="❌ SET RECUSADO",
+                description=(
+                    f"**👤 Discord:** {self.discord_user.mention}\n"
+                    f"**🎮 ID Fivem:** `{self.fivem_id}`\n"
+                    f"**👤 Nick do Jogo:** `{self.game_nick}`\n"
+                    f"**👑 Recusado por:** {interaction.user.mention}\n"
+                    f"**📅 Data:** {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+                ),
+                color=discord.Color.red()
+            )
+            
+            # Envia aviso de recusa
+            await interaction.channel.send(embed=embed_recusado)
+            
+            # 🔥 EXCLUI APENAS A MENSAGEM DO PEDIDO
+            await mensagem_pedido.delete()
+            
+            await interaction.followup.send("✅ Set recusado e mensagem excluída!", ephemeral=True)
+            print(f"✅ Set recusado - ID Fivem: {self.fivem_id}")
+            
+        except discord.Forbidden:
+            await interaction.followup.send("❌ Não tenho permissão para excluir mensagens!", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Erro: {e}", ephemeral=True)
 
 class SetForm(ui.Modal, title="📝 Pedido de Set"):
     """Modal para coletar dados do set"""
