@@ -412,7 +412,7 @@ class TicketOpenView(ui.View):
             
             # 7. NOTIFICAR STAFF
             mention_roles = []
-            for role_name in ["00", 𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫"]:
+            for role_name in ["00, 𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫"]:
                 role = discord.utils.get(interaction.guild.roles, name=role_name)
                 if role:
                     mention_roles.append(role.mention)
