@@ -250,114 +250,129 @@ class TicketOpenView(ui.View):
     def __init__(self):
         super().__init__(timeout=None)
     
-    @ui.button(label="Abrir Ticket", style=ButtonStyle.primary, emoji="🎫", custom_id="open_ticket")
+       @ui.button(label="Abrir Ticket", style=ButtonStyle.primary, emoji="🎫", custom_id="open_ticket")
     async def open_ticket(self, interaction: discord.Interaction, button: ui.Button):
+        # Responder IMEDIATAMENTE
         await interaction.response.defer(ephemeral=True)
         
         try:
-            # ENCONTRAR CANAL "𝐓𝐢𝐜𝐤𝐞𝐭-🎟️"
+            # 1. VERIFICAÇÃO DE CATEGORIA
             canal_ticket_base = None
             for channel in interaction.guild.text_channels:
-                if "𝐓𝐢𝐜𝐤𝐞𝐭" in channel.name.lower() and "🎟️" in channel.name:
+                if "ticket" in channel.name.lower() and "🎟️" in channel.name:
                     canal_ticket_base = channel
                     break
             
             if not canal_ticket_base:
-                await interaction.followup.send("❌ Canal '𝐓𝐢𝐜𝐤𝐞𝐭-🎟️' não encontrado!", ephemeral=True)
+                await interaction.followup.send("❌ Canal de tickets base não encontrado! Procure um canal com 'ticket' e 🎟️ no nome.", ephemeral=True)
                 return
             
-            # Verificar se já tem ticket aberto
+            # 2. VERIFICAR SE JÁ TEM TICKET ABERTO
             categoria = canal_ticket_base.category
-            if categoria:
-                for channel in categoria.channels:
-                    if str(interaction.user.id) in (channel.topic or ""):
-                        await interaction.followup.send(
-                            f"❌ Você já tem um ticket aberto: {channel.mention}",
-                            ephemeral=True
-                        )
-                        return
-            
-            # Usar a MESMA categoria
             if not categoria:
-                await interaction.followup.send("❌ Canal não está em uma categoria!", ephemeral=True)
+                await interaction.followup.send("❌ O canal base precisa estar em uma categoria!", ephemeral=True)
                 return
             
-            # Encontrar posição para colocar ABAIXO do "𝐓𝐢𝐜𝐤𝐞𝐭-🎟️"
-            canais_na_categoria = list(categoria.channels)
-            canais_na_categoria.sort(key=lambda x: x.position)
+            for channel in categoria.channels:
+                if channel.topic and str(interaction.user.id) in channel.topic:
+                    await interaction.followup.send(
+                        f"❌ Você já tem um ticket aberto: {channel.mention}",
+                        ephemeral=True
+                    )
+                    return
             
-            posicao = 0
-            for canal in canais_na_categoria:
-                if canal.id == canal_ticket_base.id:
-                    posicao = canal.position + 1
-                    break
-            
-            # Permissões iniciais
+            # 3. CONFIGURAR PERMISSÕES
             overwrites = {
                 interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False),
                 interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True, attach_files=True),
                 interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, manage_channels=True)
             }
             
-            # Adicionar staff roles para ver botões
+            # 4. ADICIONAR STAFF COM TRY-CATCH
             staff_roles = ["00", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐝𝐞 𝐅𝐚𝐦𝐫", "𝐆𝐞𝐫𝐞𝐧𝐭𝐞 𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐦𝐞𝐧𝐭𝐨", "𝐌𝐨𝐝𝐞𝐫"]
             for role_name in staff_roles:
-                role = discord.utils.get(interaction.guild.roles, name=role_name)
-                if role:
-                    overwrites[role] = discord.PermissionOverwrite(read_messages=True, send_messages=False)
+                try:
+                    role = discord.utils.get(interaction.guild.roles, name=role_name)
+                    if role:
+                        overwrites[role] = discord.PermissionOverwrite(
+                            read_messages=True, 
+                            send_messages=False,
+                            read_message_history=True
+                        )
+                except Exception as e:
+                    print(f"Aviso: Não consegui processar role {role_name}: {e}")
+                    continue
             
-            # Criar canal
+            # 5. CRIAR CANAL DE TICKET
             ticket_channel = await interaction.guild.create_text_channel(
-                name=f"🎫-{interaction.user.name}",
+                name=f"🎫-{interaction.user.display_name[:20]}",  # Limitar nome
                 category=categoria,
                 overwrites=overwrites,
                 topic=f"Ticket de {interaction.user.name} | ID: {interaction.user.id}",
-                position=posicao if posicao > 0 else None
+                reason=f"Ticket criado por {interaction.user.name}"
             )
             
-            # Embed inicial (SEM "Painel de Controle:" na descrição)
+            # 6. ENVIAR MENSAGENS NO TICKET
             embed = discord.Embed(
                 title=f"🎫 Ticket de {interaction.user.display_name}",
                 description=(
                     f"**Aberto por:** {interaction.user.mention}\n"
                     f"**ID:** `{interaction.user.id}`\n"
                     f"**Data:** {datetime.now().strftime('%d/%m/%Y %H:%M')}\n\n"
-                    "**📝 Descreva seu problema ou dúvida:**"
+                    "**📝 Descreva seu problema ou dúvida abaixo:**"
                 ),
                 color=discord.Color.purple()
             )
             
-            # View com botões Deletar e Fechar
             staff_view = TicketStaffView(interaction.user.id, ticket_channel)
             
-            # ENVIAR em 2 mensagens SEPARADAS:
-            # 1. Primeiro o embed
+            # Primeiro o embed
             await ticket_channel.send(
-                content=f"{interaction.user.mention} **Ticket criado!**",
+                content=f"{interaction.user.mention} **Ticket criado!**\nEquipe será notificada em breve.",
                 embed=embed
             )
             
-            # 2. DEPOIS os botões em mensagem separada
+            # Depois os botões
             await ticket_channel.send("**Painel de Controle:**", view=staff_view)
             
-            # Confirmação
-            msg = await interaction.followup.send(
-                f"✅ Ticket criado: {ticket_channel.mention}",
+            # 7. NOTIFICAR STAFF (OPCIONAL)
+            staff_mention = ""
+            for role_name in ["𝐆𝐞𝐫𝐞𝐧𝐭𝐞", "𝐒𝐮𝐛𝐥𝐢́𝐝𝐞𝐫", "𝐑𝐞𝐜𝐫𝐮𝐭𝐚𝐝𝐨𝐫"]:
+                role = discord.utils.get(interaction.guild.roles, name=role_name)
+                if role:
+                    staff_mention += f"{role.mention} "
+            
+            if staff_mention:
+                await ticket_channel.send(f"{staff_mention}Novo ticket criado!")
+            
+            # 8. CONFIRMAÇÃO PARA O USUÁRIO
+            await interaction.followup.send(
+                f"✅ Ticket criado com sucesso! Acesse: {ticket_channel.mention}",
                 ephemeral=True
             )
             
-            await asyncio.sleep(10)
-            try:
-                await msg.delete()
-            except:
-                pass
+            print(f"✅ Ticket criado para {interaction.user.name}: {ticket_channel.name}")
             
-            print(f"🎫 Ticket criado: {ticket_channel.name}")
-            
+        except discord.Forbidden:
+            await interaction.followup.send(
+                "❌ Não tenho permissão para criar canais ou gerenciar permissões!",
+                ephemeral=True
+            )
+            print("❌ Erro de permissão ao criar ticket")
+        except discord.HTTPException as e:
+            await interaction.followup.send(
+                f"❌ Erro do Discord ao criar canal: {e.status}",
+                ephemeral=True
+            )
+            print(f"❌ HTTPException: {e}")
         except Exception as e:
-            print(f"❌ Erro: {e}")
-            await interaction.followup.send("❌ Erro ao criar ticket!", ephemeral=True)
-
+            await interaction.followup.send(
+                "❌ Erro inesperado ao criar ticket. Contate um administrador.",
+                ephemeral=True
+            )
+            print(f"❌ Erro grave em open_ticket: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
 # ========== COMANDOS ==========
 
 class TicketsCog(commands.Cog):
