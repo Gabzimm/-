@@ -32,6 +32,7 @@ class CargoSelectDropdown(ui.Select):
             discord.SelectOption(label="𝐀𝐃𝐌", description="Administrador"),
             discord.SelectOption(label="𝐆𝐞𝐫𝐞𝐧𝐭𝐞", description="Gerente"),
             discord.SelectOption(label="00", description="Dono"),
+            discord.SelectOption(label="𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞", description="𝐕𝐢𝐬𝐢𝐭𝐚𝐧𝐭𝐞"),
 
         ]
         
